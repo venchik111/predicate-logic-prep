@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Логика предикатов, ч. 2 — подготовка к тесту</title>
+<style>
+:root{
+  --bg:#f6f7fb; --card:#fff; --ink:#1d2333; --muted:#667085; --line:#e4e7ef;
+  --acc:#4f46e5; --acc2:#eef0ff; --ok:#16a34a; --okbg:#e8f8ee; --bad:#dc2626; --badbg:#fdecec;
+  --warn:#d97706; --warnbg:#fff5e6; --a:#3b82f6; --b:#f59e0b; --c:#10b981;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink)}
+.f{font-family:"Cambria Math","STIX Two Math","Times New Roman",serif;font-size:1.08em;white-space:nowrap}
+.f b{color:var(--acc)}
+nav{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+nav .in{max-width:1040px;margin:auto;display:flex;gap:4px;overflow-x:auto;padding:8px 16px}
+nav a{flex:none;text-decoration:none;color:var(--muted);font-size:14px;padding:6px 10px;border-radius:8px}
+nav a:hover{background:var(--acc2);color:var(--acc)}
+main{max-width:1040px;margin:auto;padding:16px}
+header.hero{background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;border-radius:20px;padding:28px 28px 22px;margin:8px 0 20px}
+header.hero h1{margin:0 0 6px;font-size:30px}
+header.hero p{margin:4px 0;opacity:.92}
+.plan{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-top:16px}
+.plan div{background:rgba(255,255,255,.14);border-radius:12px;padding:10px 12px;font-size:14px}
+.plan b{display:block;font-size:13px;opacity:.85}
+section.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px 24px;margin:0 0 20px}
+section.card h2{margin:0 0 4px;font-size:23px}
+.num{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:9px;background:var(--acc);color:#fff;font-size:15px;margin-right:8px;vertical-align:2px}
+.sub{color:var(--muted);margin:0 0 14px}
+.rule{background:var(--acc2);border-left:4px solid var(--acc);border-radius:10px;padding:12px 16px;margin:12px 0}
+.rule .big{font-size:22px;text-align:center;margin:6px 0}
+.tip{background:var(--warnbg);border-left:4px solid var(--warn);border-radius:10px;padding:10px 14px;margin:12px 0;font-size:15px}
+.trap{background:var(--badbg);border-left:4px solid var(--bad);border-radius:10px;padding:10px 14px;margin:12px 0;font-size:15px}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:760px){.cols{grid-template-columns:1fr}}
+.widget{border:1px dashed #c7cbe0;border-radius:14px;padding:14px;margin:14px 0;background:#fbfbff}
+.widget h3{margin:0 0 10px;font-size:16px;color:var(--acc)}
+.widget h3::before{content:"▶ ";font-size:12px}
+button,.btn{font:inherit;border:1px solid var(--line);background:#fff;border-radius:10px;padding:7px 12px;cursor:pointer;color:var(--ink)}
+button:hover{border-color:var(--acc);color:var(--acc)}
+button.pri{background:var(--acc);color:#fff;border-color:var(--acc)}
+button.pri:hover{filter:brightness(1.1);color:#fff}
+button.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0}
+input[type=text],input[type=number],select{font:inherit;border:1px solid var(--line);border-radius:10px;padding:7px 10px;background:#fff}
+.chips{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0;min-height:58px}
+.chip{width:58px;height:58px;border-radius:14px;display:grid;place-items:center;font-size:20px;font-weight:600;background:#fff;border:2px solid var(--line);transition:.25s;position:relative}
+.chip.scan{border-color:var(--acc);transform:scale(1.08)}
+.chip.ok{background:var(--okbg);border-color:var(--ok);color:var(--ok)}
+.chip.bad{background:var(--badbg);border-color:var(--bad);color:var(--bad)}
+.chip.key{box-shadow:0 0 0 4px rgba(79,70,229,.35);transform:scale(1.12)}
+.chip .m{position:absolute;top:-8px;right:-8px;font-size:13px;background:#fff;border-radius:50%;width:20px;height:20px;display:grid;place-items:center;border:1px solid var(--line)}
+.verdict{padding:10px 14px;border-radius:10px;font-weight:500;min-height:44px}
+.verdict.t{background:var(--okbg);color:#0f5132}
+.verdict.f{background:var(--badbg);color:#842029}
+table.tt{border-collapse:collapse;margin:8px 0;font-size:15px}
+table.tt td,table.tt th{border:1px solid var(--line);padding:6px 10px;text-align:center}
+table.tt th{background:#f2f3f8}
+.T{color:var(--ok);font-weight:700}.F{color:var(--bad);font-weight:700}
+.machine{font-size:26px;padding:16px;background:#fff;border-radius:12px;border:1px solid var(--line);text-align:center;min-height:70px;letter-spacing:.5px}
+.machine .neg{color:var(--bad);font-weight:700;display:inline-block;animation:pop .35s}
+.machine .fl{color:var(--acc);font-weight:700;background:var(--acc2);border-radius:6px;padding:0 3px}
+@keyframes pop{from{transform:translateY(-10px) scale(1.4);opacity:.3}to{transform:none;opacity:1}}
+.hist{font-size:15px;color:var(--muted);margin-top:8px}
+.hist div{padding:2px 0}
+.pairs{display:flex;flex-wrap:wrap;gap:8px}
+.pair{border:1px solid var(--line);border-radius:10px;padding:8px 14px;background:#fff;font-size:20px;cursor:pointer;user-select:none}
+.pair .r{color:var(--bad);font-weight:700}
+canvas{max-width:100%;border-radius:10px;background:#fff;border:1px solid var(--line)}
+.venn{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start}
+.venn figure{margin:0;text-align:center}
+.venn figcaption{margin-top:4px}
+.eqsign{font-size:34px;align-self:center;font-weight:700}
+.grid6 td{min-width:44px}
+.grid6 td.cell{cursor:pointer;user-select:none}
+.stmt{display:grid;grid-template-columns:1fr auto 1fr auto;gap:6px 10px;align-items:center;font-size:15px;margin:6px 0}
+.badge{display:inline-block;border-radius:6px;padding:1px 8px;font-size:13px;font-weight:600}
+.badge.eq{background:var(--okbg);color:var(--ok)}.badge.ne{background:var(--badbg);color:var(--bad)}
+/* Quiz */
+.quiz{border:1px solid var(--line);border-radius:14px;padding:16px;background:#fff;margin-top:14px}
+.qhead{display:flex;justify-content:space-between;color:var(--muted);font-size:14px;margin-bottom:8px;gap:8px;flex-wrap:wrap}
+.qtext{font-size:17px;margin-bottom:12px}
+.opts{display:grid;gap:8px}
+.opt{text-align:left;padding:10px 14px;border-radius:10px;border:1.5px solid var(--line);background:#fff;font-size:16px}
+.opt .L{display:inline-block;width:24px;font-weight:700;color:var(--muted)}
+.opt.right{background:var(--okbg);border-color:var(--ok)}
+.opt.wrong{background:var(--badbg);border-color:var(--bad)}
+.expl{margin-top:12px;padding:10px 14px;border-radius:10px;background:#f4f6fb;font-size:15px;display:none}
+.expl.show{display:block}
+.score{font-size:15px;color:var(--muted)}
+.bar{height:8px;background:#eceef6;border-radius:6px;overflow:hidden;margin:6px 0 12px}
+.bar i{display:block;height:100%;background:var(--ok);width:0;transition:.4s}
+.result{font-size:18px;padding:14px;border-radius:12px;background:var(--acc2)}
+.cheat{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+.cheat div{background:#f8f9fc;border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:15px}
+.cheat h4{margin:0 0 6px;color:var(--acc)}
+.prog{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.prog span{font-size:12px;background:rgba(255,255,255,.18);padding:3px 8px;border-radius:20px}
+.prog span.done{background:#22c55e}
+small.m{color:var(--muted)}
+input[type=range]{width:180px;accent-color:var(--acc)}
+</style>
+</head>
+<body>
+<nav><div class="in">
+  <a href="#s1">1. ∀</a><a href="#s2">2. ∃</a><a href="#s3">3. ¬∀</a><a href="#s4">4. ¬∃</a>
+  <a href="#s5">5. Несколько кванторов</a><a href="#s6">6. Законы логики</a><a href="#s7">7. Применение законов</a>
+  <a href="#exam">🎯 Пробный тест</a><a href="#cheat">📌 Шпаргалка</a>
+</div></nav>
+<main>
+
+<header class="hero">
+  <h1>Логика предикатов, 2 часть</h1>
+  <p>Подготовка к тесту <b>05.11, 12:00–12:45</b>. Все задачи на сайте построены по образцу заданий тренажёра.</p>
+  <div class="plan">
+    <div><b>08:00 · 25 мин</b>Темы 1–4: кванторы и их отрицание. После каждой темы реши 5 задач.</div>
+    <div><b>08:25 · 25 мин</b>Темы 5–7: несколько кванторов, законы, упрощения.</div>
+    <div><b>08:50 · 20 мин</b>Пробный тест на 20 задач. Ошибки разбери по объяснениям.</div>
+    <div><b>Перед тестом · 5 мин</b>Шпаргалка внизу страницы.</div>
+  </div>
+  <div class="prog" id="prog"></div>
+</header>
+
+<!-- 1 -->
+<section class="card" id="s1">
+  <h2><span class="num">1</span>Квантор общности ∀</h2>
+  <p class="sub">∀ читается «для любого», «для всех», «для каждого»</p>
+  <div class="rule">
+    <div class="big f">∀x ∈ M : P(x)</div>
+    «Для любого x из множества M выполняется P(x)».<br>
+    <b>Истинно</b>, если P(x) верно для <u>каждого</u> элемента.<br>
+    <b>Ложно</b>, если есть <u>хотя бы один</u> элемент, для которого P(x) неверно (контрпример).
+  </div>
+  <div class="tip">💡 <b>Одного исключения достаточно.</b> «Большинство подходит» и «первый подходит» не делают ∀ истинным. В тесте такие варианты ответа всегда неверные.</div>
+  <div class="tip">🔤 Слова <b>«все», «любой», «каждый»</b> в условии означают ∀. Слова <b>«существует», «найдётся», «есть такой»</b> означают ∃.</div>
+
+  <div class="widget">
+    <h3>Лаборатория кванторов: смотри, как идёт проверка</h3>
+    <div class="row">Множество M = { <input type="text" id="labSet" value="2, 4, 6, 8" style="width:170px"> }
+      <select id="labPred"></select></div>
+    <div class="row" id="labQ">
+      <button data-q="A" class="on">∀ — для всех</button>
+      <button data-q="E">∃ — существует</button>
+      <button data-q="nA">¬∀</button>
+      <button data-q="nE">¬∃</button>
+      <button class="pri" id="labGo">Проверить ▶</button>
+    </div>
+    <div class="row"><small class="m">Готовые примеры:</small>
+      <button data-preset="2, 4, 6, 8|even">{2,4,6,8} чётные</button>
+      <button data-preset="1, 3, 5, 8|odd">{1,3,5,8} нечётные</button>
+      <button data-preset="1, 2, 3, 4, 5, 6|quad">x²−5x+6=0</button>
+      <button data-preset="1, 3, 5, 7|quad2">x²−6x+8=0</button>
+    </div>
+    <div class="f" id="labFormula" style="font-size:20px;margin-top:6px"></div>
+    <div class="chips" id="labChips"></div>
+    <div class="verdict" id="labVerdict">Нажми «Проверить».</div>
+  </div>
+
+  <div class="tip">🧮 В тренажёре бывают задачи на счёт. Пример: «M = {3, 6, 9, 12}, найди произведение чётных элементов». Чётные здесь 6 и 12, произведение 6·12 = <b>72</b>. Ещё пример: «M = {2, 4, 7, 10}, какая доля элементов чётная?» Чётных 3 из 4, ответ <b>0,75</b>.</div>
+  <div data-practice="1"></div>
+</section>
+
+<!-- 2 -->
+<section class="card" id="s2">
+  <h2><span class="num">2</span>Квантор существования ∃</h2>
+  <p class="sub">∃ читается «существует такой … что», «найдётся такой … что»</p>
+  <div class="rule">
+    <div class="big f">∃x ∈ M : P(x)</div>
+    «Существует такой x из M, что выполняется P(x)».<br>
+    <b>Истинно</b>, если нашёлся <u>хотя бы один</u> подходящий элемент (пример).<br>
+    <b>Ложно</b>, если <u>ни один</u> элемент не подходит.
+  </div>
+  <div class="cols">
+    <div class="tip">Для <b>∀</b> ищем <b>контрпример</b>. Нашёлся — высказывание ложно.</div>
+    <div class="tip">Для <b>∃</b> ищем <b>пример</b>. Нашёлся — высказывание истинно.</div>
+  </div>
+  <div class="tip">📐 <b>Задачи с квадратным уравнением</b>, например ∃x ∈ {1,…,6}: x² − 5x + 6 = 0. Разложи на множители: (x−2)(x−3)=0, корни 2 и 3. Если хотя бы один корень входит в множество, высказывание истинно. Подбор корней: их сумма равна числу при x с обратным знаком, произведение равно свободному члену.</div>
+  <div class="trap">⚠️ <b>Ловушка перевода:</b> «удвоенное число <b>на 5 больше</b> самого числа» записывается как <span class="f">2x = x + 5</span> (равенство!), а не <span class="f">2x &gt; x + 5</span>.</div>
+  <p>Лаборатория выше тоже умеет проверять ∃: выбери «∃ — существует» и запусти. При ∃ проверка останавливается на первом подходящем элементе.</p>
+  <div data-practice="2"></div>
+</section>
+
+<!-- 3 -->
+<section class="card" id="s3">
+  <h2><span class="num">3</span>Отрицание квантора общности</h2>
+  <p class="sub">«Неверно, что все…» = «есть хотя бы один, который не…»</p>
+  <div class="rule">
+    <div class="big f">¬∀x P(x) ≡ ∃x ¬P(x)</div>
+    Делаем два шага: <b>1)</b> заменяем ∀ на ∃; <b>2)</b> отрицаем предикат.<br>
+    Работает и в обратную сторону: <span class="f">∃x ¬P(x) ≡ ¬∀x P(x)</span>.
+  </div>
+  <div class="widget">
+    <h3>Отрицание неравенства: кликни по знаку</h3>
+    <div class="pairs" id="pairs"></div>
+    <p style="margin:10px 0 4px">На числовой прямой P и ¬P всегда делят прямую на две части без пересечений. Поэтому граничная точка попадает ровно в одну из них.</p>
+    <div class="row">P(x): x <select id="nlOp"><option>&gt;</option><option>≥</option><option>&lt;</option><option>≤</option></select>
+      <input type="range" id="nlA" min="-4" max="8" step="1" value="3"> <span class="f" id="nlTxt"></span></div>
+    <svg id="nlSvg" viewBox="0 0 640 90" width="100%" style="max-width:640px;background:#fff;border:1px solid var(--line);border-radius:10px"></svg>
+  </div>
+  <div class="trap">⚠️ <b>Частая ошибка:</b> ¬∀x P(x) <b>≠</b> ∀x ¬P(x). Отрицание фразы «все сдали» звучит как «кто-то не сдал», а не «все не сдали».</div>
+  <div class="tip">🗣 <b>На естественном языке:</b> «Все гости оплатили проживание» → «<b>Существует</b> гость, который <b>не</b> оплатил проживание». Начинай отрицание со слов «существует … который не …».</div>
+  <div class="tip">🔁 <b>Обратная задача</b> «запиши ∃x(x + 7 ≤ 100) через ∀ и ¬». Отрицаем предикат и ставим ¬∀: <span class="f">¬∀x (x + 7 &gt; 100)</span>.</div>
+  <div class="tip">🔢 <b>«Найди наибольшее целое x».</b> Пример: ¬∀x∈ℤ (3x − 1 &gt; 5) ≡ ∃x (3x − 1 ≤ 5). Решаем 3x ≤ 6, x ≤ 2. Наибольшее целое x = <b>2</b>.</div>
+  <div data-practice="3"></div>
+</section>
+
+<!-- 4 -->
+<section class="card" id="s4">
+  <h2><span class="num">4</span>Отрицание квантора существования</h2>
+  <p class="sub">«Не существует такого, что…» = «для любого — не…»</p>
+  <div class="rule">
+    <div class="big f">¬∃x P(x) ≡ ∀x ¬P(x)</div>
+    Делаем два шага: <b>1)</b> заменяем ∃ на ∀; <b>2)</b> отрицаем предикат.<br>
+    Пример: <span class="f">¬∃x (x² &lt; 9) ≡ ∀x (x² ≥ 9)</span>.
+  </div>
+  <div class="tip">⚖️ <b>У эквивалентных формул одинаковая истинность.</b> Если сказано, что ∀x∈S (x² − 100 ≠ 0) ложно, то ¬∃x∈S (x² − 100 = 0) тоже ложно, считать ничего не нужно. Если ответ просят числом, ложь = <b>0</b>, истина = <b>1</b>.</div>
+  <div class="tip">🔢 <b>«Сколько элементов {3,5,7,9,14} удовлетворяют ¬(x² − 49 ≠ 0)?»</b> Двойное «не» снимается: ¬(x²−49 ≠ 0) ⇔ x² = 49 ⇔ x = ±7. В множестве подходит только 7, ответ <b>1</b>.</div>
+  <div class="tip">🗣 «Существует целое x, такое что 3x − 15 = 0» → отрицание: «<b>Для любого</b> целого x верно, что 3x − 15 <b>≠</b> 0».</div>
+  <div data-practice="4"></div>
+</section>
+
+<!-- 5 -->
+<section class="card" id="s5">
+  <h2><span class="num">5</span>Отрицание формул с несколькими кванторами</h2>
+  <p class="sub">Отрицание проходит через кванторы слева направо, как волна</p>
+  <div class="rule">
+    Каждый квантор меняется на противоположный (∀ ↔ ∃), <b>порядок переменных сохраняется</b>, предикат в конце отрицается.
+    <div class="big f">¬ ∀x ∃y ∀z R ≡ ∃x ∀y ∃z ¬R</div>
+  </div>
+  <div class="widget">
+    <h3>Машина отрицания: жми «Шаг» и смотри, как ¬ проходит вправо</h3>
+    <div class="row" id="mPresets"></div>
+    <div class="machine" id="mBox"></div>
+    <div class="row"><button class="pri" id="mStep">Шаг ▶</button><button id="mAll">Сразу ответ</button><button id="mReset">Сначала</button><button id="mRand">🎲 Случайная формула</button></div>
+    <div class="hist" id="mHist"></div>
+  </div>
+  <div class="trap">⚠️ <b>Ошибки, которые проверяет тест:</b><br>
+    • заменили кванторы, но забыли ¬ перед предикатом;<br>
+    • поменяли только первый квантор;<br>
+    • переставили переменные местами: в <span class="f">∀y∃x R(x,y)</span> первой остаётся y → <span class="f">∃y∀x ¬R(x,y)</span>.</div>
+  <div class="tip">🔢 С равенством внутри: <span class="f">¬∀x∃y (x + y = 0) ≡ ∃x∀y (x + y ≠ 0)</span>. Знак «=» превращается в «≠».</div>
+  <div data-practice="5"></div>
+</section>
+
+<!-- 6 -->
+<section class="card" id="s6">
+  <h2><span class="num">6</span>Законы логики для предикатов</h2>
+  <p class="sub">Законы для высказываний работают и для предикатов, плюс правила для кванторов</p>
+  <div class="cols">
+    <div class="rule">
+      <b>Двойное отрицание:</b> <span class="f">¬¬P(x) ≡ P(x)</span><br>
+      <b>Де Морган:</b><br>
+      <span class="f">¬(A ∧ B) ≡ ¬A ∨ ¬B</span><br>
+      <span class="f">¬(A ∨ B) ≡ ¬A ∧ ¬B</span><br>
+      <b>Импликация:</b> <span class="f">P → Q ≡ ¬P ∨ Q</span><br>
+      <b>Дистрибутивность:</b> <span class="f">P ∧ (Q ∨ R) ≡ (P∧Q) ∨ (P∧R)</span>
+    </div>
+    <div class="rule">
+      <b>Кванторы и связки:</b><br>
+      <span class="f">∀x (P ∧ Q) ≡ ∀x P ∧ ∀x Q</span> ✅<br>
+      <span class="f">∃x (P ∨ Q) ≡ ∃x P ∨ ∃x Q</span> ✅<br>
+      <span class="f">∀x (P ∨ Q) ≢ ∀x P ∨ ∀x Q</span> ❌<br>
+      <span class="f">∃x (P ∧ Q) ≢ ∃x P ∧ ∃x Q</span> ❌<br>
+      <small>Запомни пары: <b>∀ дружит с ∧</b>, <b>∃ дружит с ∨</b>.</small>
+    </div>
+  </div>
+
+  <div class="widget">
+    <h3>Почему ∀ нельзя «раскрыть» через ∨: щёлкай по клеткам</h3>
+    <p style="margin:0 0 6px;font-size:15px">Шесть объектов x. Щёлкни по клетке, чтобы поменять истинность P(x) или Q(x).</p>
+    <table class="tt grid6" id="g6"></table>
+    <div id="g6s"></div>
+    <div class="row"><button id="g6cx">Показать контрпример</button><button id="g6r">Случайно</button></div>
+  </div>
+
+  <div class="widget">
+    <h3>Импликация и её отрицание: кликай по P и Q</h3>
+    <div class="row"><button id="ip">P = И</button><button id="iq">Q = Л</button></div>
+    <table class="tt" id="itab"></table>
+    <p style="font-size:15px;margin:4px 0">Импликация ложна только в случае «из истины следует ложь», то есть P = И, Q = Л. Поэтому <span class="f">¬(P→Q) ≡ P ∧ ¬Q</span>.</p>
+  </div>
+
+  <div class="rule"><b>Главная цепочка из тренажёра:</b><br>
+    <span class="f">¬∀x (P → Q)</span> ⟶ ¬ через квантор ⟶ <span class="f">∃x ¬(P → Q)</span> ⟶ импликацию в ∨ ⟶ <span class="f">∃x ¬(¬P ∨ Q)</span> ⟶ де Морган ⟶ <span class="f">∃x (¬¬P ∧ ¬Q)</span> ⟶ ¬¬ снимаем ⟶ <span class="f"><b>∃x (P ∧ ¬Q)</b></span><br>
+    Так же <span class="f">¬∃x (R ∧ ¬S) ≡ ∀x (¬R ∨ S)</span>. Если в ответах есть и промежуточный вариант <span class="f">∀x ¬(R ∧ ¬S)</span>, выбирай <b>полностью упрощённый</b>.
+  </div>
+  <div class="tip">🔢 <b>Задачи на подсчёт.</b> Пример: X = {1,…,5}, A(x): x &gt; 2, B(x): x чётно. Сколько x делают ¬(A ∧ B) истинным? A ∧ B верно только для x = 4. Остальных 5 − 1 = <b>4</b>. Удобный приём: посчитай, где верно выражение под ¬, и вычти из общего числа.</div>
+  <div data-practice="6"></div>
+</section>
+
+<!-- 7 -->
+<section class="card" id="s7">
+  <h2><span class="num">7</span>Применение законов логики к предикатам</h2>
+  <p class="sub">Отрицание двойного неравенства, поглощение, дистрибутивность</p>
+  <div class="cols">
+    <div class="rule">
+      <b>Поглощение</b> (длинное «съедается»):<br>
+      <span class="f">A ∨ (A ∧ B) ≡ A</span><br>
+      <span class="f">A ∧ (A ∨ B) ≡ A</span><br>
+      <b>Исключённое третье:</b> <span class="f">A ∨ ¬A ≡ И</span> (тождественно истинно)<br>
+      <b>Противоречие:</b> <span class="f">A ∧ ¬A ≡ Л</span> (тождественно ложно)
+    </div>
+    <div class="rule">
+      <b>Дистрибутивность</b> (вынос общего):<br>
+      <span class="f">(A ∨ B) ∧ (A ∨ C) ≡ A ∨ (B ∧ C)</span><br>
+      <span class="f">(A ∧ B) ∨ (A ∧ C) ≡ A ∧ (B ∨ C)</span><br>
+      <small>Общую букву выносим, а знак между скобками уходит внутрь.</small>
+    </div>
+  </div>
+
+  <div class="widget">
+    <h3>Законы на диаграммах Эйлера–Венна</h3>
+    <p style="margin:0 0 8px;font-size:15px">Круг A — это все x, для которых A(x) истинно. Закрашено то, где выражение истинно. Если закраска слева и справа совпадает, формулы равносильны.</p>
+    <div class="row" id="vennBtns"></div>
+    <div class="venn">
+      <figure><canvas id="vL" width="260" height="180"></canvas><figcaption class="f" id="vLt"></figcaption></figure>
+      <div class="eqsign" id="vEq">≡</div>
+      <figure><canvas id="vR" width="260" height="180"></canvas><figcaption class="f" id="vRt"></figcaption></figure>
+    </div>
+    <div id="vNote" style="font-size:15px;margin-top:6px"></div>
+  </div>
+
+  <div class="widget">
+    <h3>Отрицание двойного неравенства на числовой прямой</h3>
+    <div class="row">Q(x): x &gt; <input type="number" id="iA" value="3" step="0.1" style="width:80px"> и x ≤ <input type="number" id="iB" value="10" step="0.1" style="width:80px"></div>
+    <svg id="iSvg" viewBox="0 0 640 110" width="100%" style="max-width:640px;background:#fff;border:1px solid var(--line);border-radius:10px"></svg>
+    <div id="iTxt" style="margin-top:6px"></div>
+  </div>
+  <div class="tip">✍️ <b>Алгоритм для ¬Q(x)</b>, где Q(x): «x &gt; 3 и x ≤ 10»:<br>
+  1) «и» меняем на «<b>или</b>»; 2) каждое неравенство отрицаем: &gt; → ≤, ≤ → &gt;.<br>
+  Ответ: <span class="f"><b>x ≤ 3 ∨ x &gt; 10</b></span>. Дробные границы (2.7, 9.3) переписываются так же: x ≤ 2.7 ∨ x &gt; 9.3.</div>
+  <div data-practice="7"></div>
+</section>
+
+<!-- EXAM -->
+<section class="card" id="exam">
+  <h2>🎯 Пробный тест</h2>
+  <p class="sub">20 случайных задач по всем 7 темам. Задачи генерируются заново при каждом запуске, поэтому тест можно проходить несколько раз.</p>
+  <div class="row"><button class="pri" id="examGo">Начать пробный тест (20 задач)</button><button id="examGo10">Быстрый (10 задач)</button></div>
+  <div id="examBox"></div>
+</section>
+
+<!-- CHEAT -->
+<section class="card" id="cheat">
+  <h2>📌 Шпаргалка на 5 минут</h2>
+  <div class="cheat">
+    <div><h4>∀ и ∃</h4>∀ — «для любого»: нужен <b>каждый</b>, ложно при одном контрпримере.<br>∃ — «существует»: достаточно <b>одного</b> примера, ложно, если не подходит никто.</div>
+    <div><h4>Отрицание кванторов</h4><span class="f">¬∀x P ≡ ∃x ¬P</span><br><span class="f">¬∃x P ≡ ∀x ¬P</span><br>Меняем квантор, отрицаем предикат.</div>
+    <div><h4>Отрицание знаков</h4><span class="f">&gt; ↔ ≤ &nbsp;&nbsp; &lt; ↔ ≥ &nbsp;&nbsp; = ↔ ≠</span><br>Строгий знак становится нестрогим, и наоборот.</div>
+    <div><h4>Несколько кванторов</h4>Меняем <b>все</b> кванторы, порядок переменных не трогаем, предикат отрицаем.<br><span class="f">¬∀x∃y P ≡ ∃x∀y ¬P</span></div>
+    <div><h4>Де Морган</h4><span class="f">¬(A∧B) ≡ ¬A∨¬B</span><br><span class="f">¬(A∨B) ≡ ¬A∧¬B</span><br>«и» ↔ «или», ¬ переходит на каждую часть.</div>
+    <div><h4>Импликация</h4><span class="f">P→Q ≡ ¬P∨Q</span><br><span class="f">¬(P→Q) ≡ P∧¬Q</span><br><span class="f">¬∀x(P→Q) ≡ ∃x(P∧¬Q)</span></div>
+    <div><h4>Кванторы и связки</h4>✅ <span class="f">∀(P∧Q) ≡ ∀P∧∀Q</span><br>✅ <span class="f">∃(P∨Q) ≡ ∃P∨∃Q</span><br>❌ ∀ с ∨ и ❌ ∃ с ∧ не раскрываются.</div>
+    <div><h4>Упрощения</h4>Поглощение: <span class="f">A∨(A∧B) ≡ A</span>, <span class="f">A∧(A∨B) ≡ A</span><br>Дистрибутивность: <span class="f">(A∨B)∧(A∨C) ≡ A∨(B∧C)</span><br><span class="f">A∨¬A ≡ И</span>, <span class="f">A∧¬A ≡ Л</span></div>
+    <div><h4>Числовые ответы</h4>Истина = 1, ложь = 0. Долю записывай десятичной дробью (0,75). Для ¬(…) посчитай, где верно выражение внутри, и вычти из общего числа.</div>
+  </div>
+</section>
+<p style="text-align:center;color:var(--muted);font-size:13px">Удачи на тесте! 🍀</p>
+</main>
+
+<script>
+/* ========== helpers ========== */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const rnd=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const F=s=>`<span class="f">${s}</span>`;
+const NEG={'>':'≤','<':'≥','≥':'<','≤':'>','=':'≠','≠':'='};
+const esc=s=>s.replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const fmtSet=a=>'{'+a.join(', ')+'}';
+const sgn=n=>n<0?'− '+(-n):'+ '+n;
+
+/* ========== progress ========== */
+const PKEY='predlogic2-progress';
+let prog=JSON.parse(localStorage.getItem(PKEY)||'{}');
+function saveProg(t,ok){prog[t]=prog[t]||{ok:0,all:0};prog[t].all++;if(ok)prog[t].ok++;localStorage.setItem(PKEY,JSON.stringify(prog));drawProg()}
+const TOPICS={1:'∀',2:'∃',3:'¬∀',4:'¬∃',5:'Несколько кванторов',6:'Законы',7:'Применение'};
+function drawProg(){$('#prog').innerHTML=Object.entries(TOPICS).map(([k,v])=>{const p=prog[k];return `<span class="${p&&p.ok>=4?'done':''}">${k}. ${v}: ${p?p.ok+'/'+p.all:'—'}</span>`}).join('')}
+drawProg();
+
+/* ========== 1–2: quantifier lab ========== */
+const isPrime=n=>{if(n<2||n%1)return false;for(let i=2;i*i<=n;i++)if(n%i==0)return false;return true};
+const PREDS={
+  even:{t:'x чётное',f:x=>x%2==0},
+  odd:{t:'x нечётное',f:x=>Math.abs(x%2)==1},
+  d3:{t:'x делится на 3',f:x=>x%3==0},
+  d5:{t:'x делится на 5',f:x=>x%5==0},
+  gt5:{t:'x > 5',f:x=>x>5},
+  lt10:{t:'x < 10',f:x=>x<10},
+  sq:{t:'x² < 20',f:x=>x*x<20},
+  prime:{t:'x — простое',f:isPrime},
+  quad:{t:'x² − 5x + 6 = 0',f:x=>x*x-5*x+6==0},
+  quad2:{t:'x² − 6x + 8 = 0',f:x=>x*x-6*x+8==0},
+};
+$('#labPred').innerHTML=Object.entries(PREDS).map(([k,v])=>`<option value="${k}">P(x): ${esc(v.t)}</option>`).join('');
+let labQ='A', labTimer=null;
+$$('#labQ [data-q]').forEach(b=>b.onclick=()=>{labQ=b.dataset.q;$$('#labQ [data-q]').forEach(x=>x.classList.toggle('on',x==b));labDraw()});
+$$('[data-preset]').forEach(b=>b.onclick=()=>{const [s,p]=b.dataset.preset.split('|');$('#labSet').value=s;$('#labPred').value=p;if(p.startsWith('quad')){labQ='E';$$('#labQ [data-q]').forEach(x=>x.classList.toggle('on',x.dataset.q=='E'))}labDraw();labRun()});
+$('#labSet').oninput=labDraw;$('#labPred').onchange=labDraw;$('#labGo').onclick=labRun;
+function labVals(){return $('#labSet').value.split(/[,;\s]+/).filter(s=>s!=='').map(Number).filter(n=>!isNaN(n)).slice(0,12)}
+function labDraw(){
+  clearInterval(labTimer);
+  const v=labVals(),p=PREDS[$('#labPred').value];
+  const qs={A:'∀x ∈ M : ',E:'∃x ∈ M : ',nA:'¬∀x ∈ M : ',nE:'¬∃x ∈ M : '}[labQ];
+  let extra='';
+  if(labQ=='nA')extra=' &nbsp;≡&nbsp; ∃x ∈ M : ¬('+esc(p.t)+')';
+  if(labQ=='nE')extra=' &nbsp;≡&nbsp; ∀x ∈ M : ¬('+esc(p.t)+')';
+  $('#labFormula').innerHTML=qs+esc(p.t)+extra;
+  $('#labChips').innerHTML=v.map(x=>`<div class="chip">${x}</div>`).join('');
+  $('#labVerdict').className='verdict';
+  $('#labVerdict').innerHTML={A:'Для ∀ ищем <b>контрпример</b>: элемент, для которого P(x) неверно.',E:'Для ∃ ищем <b>пример</b>: элемент, для которого P(x) верно.',nA:'¬∀ ≡ ∃¬: ищем элемент, для которого P(x) <b>не</b> выполняется.',nE:'¬∃ ≡ ∀¬: нужно, чтобы P(x) не выполнялось <b>ни для кого</b>.'}[labQ];
+}
+function labRun(){
+  labDraw();
+  const v=labVals(),p=PREDS[$('#labPred').value],chips=$$('#labChips .chip');
+  const findBad=(labQ=='A'||labQ=='nA');
+  let i=0,found=-1;
+  labTimer=setInterval(()=>{
+    if(i>0){chips[i-1].classList.remove('scan')}
+    if(i>=v.length||found>=0){clearInterval(labTimer);finish();return}
+    const c=chips[i],r=p.f(v[i]);
+    c.classList.add('scan',r?'ok':'bad');c.insertAdjacentHTML('beforeend',`<span class="m">${r?'✓':'✗'}</span>`);
+    if(findBad&&!r)found=i; if(!findBad&&r)found=i;
+    i++;
+  },420);
+  function finish(){
+    chips.forEach(c=>c.classList.remove('scan'));
+    let base,txt;
+    if(findBad){
+      base=found<0; // ∀ true
+      if(found>=0)chips[found].classList.add('key');
+      txt=found<0?`Все ${v.length} элементов подходят, значит ∀x P(x) <b>истинно</b>.`:`Контрпример x = ${v[found]}: P(${v[found]}) неверно. Этого достаточно, ∀x P(x) <b>ложно</b>.`;
+      if(labQ=='nA'){txt+=` Отрицание переворачивает результат: ¬∀x P(x) <b>${base?'ложно':'истинно'}</b>.`;base=!base}
+    }else{
+      base=found>=0;
+      if(found>=0)chips[found].classList.add('key');
+      txt=found>=0?`Нашёлся пример x = ${v[found]}, дальше можно не проверять. ∃x P(x) <b>истинно</b>.`:`Ни один элемент не подходит, ∃x P(x) <b>ложно</b>.`;
+      if(labQ=='nE'){txt+=` Отрицание переворачивает результат: ¬∃x P(x) <b>${base?'ложно':'истинно'}</b>.`;base=!base}
+    }
+    $('#labVerdict').className='verdict '+(base?'t':'f');$('#labVerdict').innerHTML=txt;
+  }
+}
+labDraw();
+
+/* ========== 3: sign pairs & number line ========== */
+$('#pairs').innerHTML=['>','<','≥','≤','=','≠'].map(o=>`<div class="pair" data-o="${esc(o)}">x ${esc(o)} 3 <span class="r" style="visibility:hidden">→ x ${esc(NEG[o])} 3</span></div>`).join('');
+$$('.pair').forEach(p=>p.onclick=()=>{const r=p.querySelector('.r');r.style.visibility=r.style.visibility=='hidden'?'visible':'hidden'});
+function nl(){
+  const op=$('#nlOp').value,a=+$('#nlA').value,nop=NEG[op];
+  $('#nlTxt').innerHTML=`P: x ${esc(op)} ${a} &nbsp;|&nbsp; ¬P: x ${esc(nop)} ${a}`;
+  const X=v=>40+(v+5)*40, y1=32,y2=62;
+  let s=`<line x1="20" y1="${y1}" x2="620" y2="${y1}" stroke="#ccd"/><line x1="20" y1="${y2}" x2="620" y2="${y2}" stroke="#ccd"/>`;
+  for(let v=-5;v<=9;v++)s+=`<text x="${X(v)}" y="86" font-size="11" text-anchor="middle" fill="#889">${v}</text>`;
+  const right=(op=='>'||op=='≥');
+  const seg=(y,r,col)=>`<line x1="${r?X(a):20}" y1="${y}" x2="${r?620:X(a)}" y2="${y}" stroke="${col}" stroke-width="6" stroke-linecap="round"/>`;
+  const dot=(y,closed,col)=>`<circle cx="${X(a)}" cy="${y}" r="7" fill="${closed?col:'#fff'}" stroke="${col}" stroke-width="3"/>`;
+  s+=seg(y1,right,'#3b82f6')+dot(y1,op=='≥'||op=='≤','#3b82f6');
+  s+=seg(y2,!right,'#f97316')+dot(y2,nop=='≥'||nop=='≤','#f97316');
+  s+=`<text x="6" y="${y1+4}" font-size="12" fill="#3b82f6">P</text><text x="2" y="${y2+4}" font-size="12" fill="#f97316">¬P</text>`;
+  $('#nlSvg').innerHTML=s;
+}
+$('#nlOp').onchange=nl;$('#nlA').oninput=nl;nl();
+
+/* ========== 5: negation machine ========== */
+const M_PRESETS=[
+  {q:[['∀','x']],p:'P(x)'},
+  {q:[['∃','x']],p:{l:'x²',o:'<',r:'9'}},
+  {q:[['∀','x'],['∃','y']],p:'P(x, y)'},
+  {q:[['∀','x'],['∃','y'],['∀','z']],p:'R(x, y, z)'},
+  {q:[['∀','x'],['∃','y']],p:{l:'x + y',o:'=',r:'0'}},
+  {q:[['∃','x'],['∀','y']],p:{l:'x · y',o:'=',r:'1'}},
+  {q:[['∀','y'],['∃','x']],p:'R(x, y)'},
+];
+let mS;
+function mLoad(pr){mS={q:pr.q.map(a=>a.slice()),p:pr.p,k:0,done:false,fl:[],hist:[]};mS.hist.push(mRender(true));mDraw()}
+function predStr(p,neg){if(typeof p=='string')return neg?'<span class="neg">¬</span>'+p:p;return '('+p.l+' '+(neg?`<span class="neg">${esc(NEG[p.o])}</span>`:esc(p.o))+' '+p.r+')'}
+function mRender(plain){
+  let s='';
+  mS.q.forEach((qq,i)=>{if(i==mS.k&&!mS.done)s+='<span class="neg">¬</span>';s+=(mS.fl[i]?`<span class="fl">${qq[0]}</span>`:qq[0])+qq[1]+' '});
+  if(mS.k==mS.q.length&&!mS.done)s+='<span class="neg">¬</span>';
+  s+=predStr(mS.p,mS.done);
+  return s;
+}
+function mDraw(){$('#mBox').innerHTML=mRender();$('#mHist').innerHTML=mS.hist.map((h,i)=>`<div>${i==0?'Начало':'≡'} <span class="f">${h.replace(/class="(neg|fl)"/g,'')}</span></div>`).join('');$('#mStep').disabled=mS.done}
+function mStep(){
+  if(mS.done)return;
+  if(mS.k<mS.q.length){const q=mS.q[mS.k];q[0]=q[0]=='∀'?'∃':'∀';mS.fl[mS.k]=true;mS.k++;}
+  else{mS.done=true}
+  if(mS.k==mS.q.length&&!mS.done&&typeof mS.p!='string'){} // wait for last step
+  mS.hist.push(mRender());mDraw();
+}
+$('#mPresets').innerHTML=M_PRESETS.map((p,i)=>`<button data-m="${i}" class="f">¬${p.q.map(a=>a.join('')).join('')} ${typeof p.p=='string'?p.p:'('+esc(p.p.l+' '+p.p.o+' '+p.p.r)+')'}</button>`).join('');
+$$('[data-m]').forEach(b=>b.onclick=()=>mLoad(M_PRESETS[+b.dataset.m]));
+$('#mStep').onclick=mStep;$('#mAll').onclick=()=>{while(!mS.done)mStep()};$('#mReset').onclick=()=>mLoad({q:mS.q.map((a,i)=>[mS.fl[i]?(a[0]=='∀'?'∃':'∀'):a[0],a[1]]),p:mS.p});
+$('#mRand').onclick=()=>{const n=rnd(1,3),vs=['x','y','z'];mLoad({q:vs.slice(0,n).map(v=>[pick(['∀','∃']),v]),p:Math.random()<.5?pick(['P','Q','R','S'])+'('+vs.slice(0,n).join(', ')+')':{l:n==1?'x²':vs.slice(0,n).join(' + '),o:pick(['>','<','≥','≤','=']),r:String(rnd(0,9))}})};
+mLoad(M_PRESETS[3]);
+
+/* ========== 6: quantifier distributivity grid ========== */
+let gP=[1,1,0,1,1,1],gQ=[0,1,1,0,1,1];
+function g6(){
+  const n=6,or=gP.map((p,i)=>p||gQ[i]),and=gP.map((p,i)=>p&&gQ[i]);
+  const cell=(v,c)=>`<td class="${c?'cell':''} ${v?'T':'F'}">${v?'И':'Л'}</td>`;
+  $('#g6').innerHTML=`<tr><th>x</th>${[1,2,3,4,5,6].map(i=>`<th>${i}</th>`).join('')}</tr>
+  <tr><th>P(x)</th>${gP.map((v,i)=>cell(v,1).replace('<td','<td data-r="P" data-i="'+i+'"')).join('')}</tr>
+  <tr><th>Q(x)</th>${gQ.map((v,i)=>cell(v,1).replace('<td','<td data-r="Q" data-i="'+i+'"')).join('')}</tr>
+  <tr><th>P∨Q</th>${or.map(v=>cell(v)).join('')}</tr><tr><th>P∧Q</th>${and.map(v=>cell(v)).join('')}</tr>`;
+  $$('#g6 [data-r]').forEach(td=>td.onclick=()=>{const a=td.dataset.r=='P'?gP:gQ;a[+td.dataset.i]^=1;g6()});
+  const all=a=>a.every(Boolean),any=a=>a.some(Boolean),V=b=>`<b class="${b?'T':'F'}">${b?'И':'Л'}</b>`;
+  const rows=[
+    ['∀x (P ∧ Q)',all(and),'∀x P ∧ ∀x Q',all(gP)&&all(gQ),true],
+    ['∃x (P ∨ Q)',any(or),'∃x P ∨ ∃x Q',any(gP)||any(gQ),true],
+    ['∀x (P ∨ Q)',all(or),'∀x P ∨ ∀x Q',all(gP)||all(gQ),false],
+    ['∃x (P ∧ Q)',any(and),'∃x P ∧ ∃x Q',any(gP)&&any(gQ),false],
+  ];
+  $('#g6s').innerHTML=rows.map(r=>`<div class="stmt"><span class="f">${r[0]} = ${V(r[1])}</span><span>${r[1]==r[3]?'=':'<b class="F">≠</b>'}</span><span class="f">${r[2]} = ${V(r[3])}</span><span class="badge ${r[4]?'eq':'ne'}">${r[4]?'закон, всегда равны':'не закон'}</span></div>`).join('');
+}
+$('#g6cx').onclick=()=>{gP=[1,0,1,0,1,0];gQ=[0,1,0,1,0,1];g6()};
+$('#g6r').onclick=()=>{gP=gP.map(()=>Math.random()<.6?1:0);gQ=gQ.map(()=>Math.random()<.6?1:0);g6()};
+g6();
+
+/* implication */
+let iP=1,iQ=0;
+function itab(){
+  $('#ip').textContent='P = '+(iP?'И':'Л');$('#iq').textContent='Q = '+(iQ?'И':'Л');
+  const V=b=>`<span class="${b?'T':'F'}">${b?'И':'Л'}</span>`,imp=!iP||iQ;
+  $('#itab').innerHTML=`<tr><th>P</th><th>Q</th><th>P → Q</th><th>¬P ∨ Q</th><th>¬(P → Q)</th><th>P ∧ ¬Q</th></tr>
+  <tr><td>${V(iP)}</td><td>${V(iQ)}</td><td>${V(imp)}</td><td>${V(!iP||iQ)}</td><td>${V(!imp)}</td><td>${V(iP&&!iQ)}</td></tr>`;
+}
+$('#ip').onclick=()=>{iP^=1;itab()};$('#iq').onclick=()=>{iQ^=1;itab()};itab();
+
+/* ========== 7: Venn ========== */
+const LAWS=[
+  {n:'Де Морган ∧',v:2,l:'¬(A ∧ B)',r:'¬A ∨ ¬B',L:(a,b)=>!(a&&b),R:(a,b)=>!a||!b},
+  {n:'Де Морган ∨',v:2,l:'¬(A ∨ B)',r:'¬A ∧ ¬B',L:(a,b)=>!(a||b),R:(a,b)=>!a&&!b},
+  {n:'⚠️ Ошибка',v:2,l:'¬(A ∧ B)',r:'¬A ∧ ¬B',L:(a,b)=>!(a&&b),R:(a,b)=>!a&&!b},
+  {n:'Поглощение 1',v:2,l:'A ∨ (A ∧ B)',r:'A',L:(a,b)=>a||(a&&b),R:a=>a},
+  {n:'Поглощение 2',v:2,l:'A ∧ (A ∨ B)',r:'A',L:(a,b)=>a&&(a||b),R:a=>a},
+  {n:'Дистриб. 1',v:3,l:'(A ∨ B) ∧ (A ∨ C)',r:'A ∨ (B ∧ C)',L:(a,b,c)=>(a||b)&&(a||c),R:(a,b,c)=>a||(b&&c)},
+  {n:'Дистриб. 2',v:3,l:'(A ∧ B) ∨ (A ∧ C)',r:'A ∧ (B ∨ C)',L:(a,b,c)=>(a&&b)||(a&&c),R:(a,b,c)=>a&&(b||c)},
+  {n:'Импликация',v:2,l:'A → B',r:'¬A ∨ B',L:(a,b)=>!a||b,R:(a,b)=>!a||b},
+  {n:'¬ импликации',v:2,l:'¬(A → B)',r:'A ∧ ¬B',L:(a,b)=>!(!a||b),R:(a,b)=>a&&!b},
+  {n:'Искл. третье',v:2,l:'A ∨ ¬A',r:'И (всё)',L:a=>a||!a,R:()=>true},
+];
+const CIRC={2:[[100,90,62,'A','#3b82f6'],[160,90,62,'B','#f59e0b']],3:[[105,72,52,'A','#3b82f6'],[155,72,52,'B','#f59e0b'],[130,118,52,'C','#10b981']]};
+function vennDraw(cv,fn,nv){
+  const ctx=cv.getContext('2d'),W=cv.width,H=cv.height,img=ctx.createImageData(W,H),cs=CIRC[nv];
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+    const m=cs.map(c=>(x-c[0])**2+(y-c[1])**2<=c[2]**2);const on=fn(...m);const i=(y*W+x)*4;
+    if(on){img.data[i]=129;img.data[i+1]=140;img.data[i+2]=248;img.data[i+3]=150}else{img.data[i]=255;img.data[i+1]=255;img.data[i+2]=255;img.data[i+3]=255}
+  }
+  ctx.putImageData(img,0,0);
+  ctx.lineWidth=2.5;cs.forEach(c=>{ctx.strokeStyle=c[4];ctx.beginPath();ctx.arc(c[0],c[1],c[2],0,7);ctx.stroke();ctx.fillStyle=c[4];ctx.font='bold 16px system-ui';
+    const dx=nv==2?(c[3]=='A'?-70:58):(c[3]=='A'?-62:c[3]=='B'?50:-5),dy=nv==2?-52:(c[3]=='C'?66:-42);ctx.fillText(c[3],c[0]+dx,c[1]+dy)});
+  ctx.strokeStyle='#99a';ctx.lineWidth=1;ctx.strokeRect(1,1,W-2,H-2);ctx.fillStyle='#99a';ctx.font='12px system-ui';ctx.fillText('U',8,18);
+}
+function vennSel(i){
+  const L=LAWS[i];$$('#vennBtns button').forEach((b,j)=>b.classList.toggle('on',i==j));
+  vennDraw($('#vL'),L.L,L.v);vennDraw($('#vR'),L.R,L.v);
+  $('#vLt').textContent=L.l;$('#vRt').textContent=L.r;
+  let eq=true;for(let m=0;m<(1<<L.v);m++){const a=[...Array(L.v)].map((_,k)=>!!(m>>k&1));if(!!L.L(...a)!=!!L.R(...a))eq=false}
+  $('#vEq').textContent=eq?'≡':'≠';$('#vEq').style.color=eq?'var(--ok)':'var(--bad)';
+  $('#vNote').innerHTML=eq?'Закраски совпадают, формулы <b>равносильны</b>.':'Закраски <b>разные</b>: область «только A» и «только B» закрашена слева, но не справа. Это частая ошибка: при отрицании ∧ меняется на ∨.';
+}
+$('#vennBtns').innerHTML=LAWS.map((l,i)=>`<button data-v="${i}">${l.n}</button>`).join('');
+$$('[data-v]').forEach(b=>b.onclick=()=>vennSel(+b.dataset.v));vennSel(0);
+
+/* interval */
+function iv(){
+  let a=parseFloat($('#iA').value),b=parseFloat($('#iB').value);if(isNaN(a)||isNaN(b))return;
+  const lo=Math.min(a,b)-4,hi=Math.max(a,b)+4,X=v=>30+(v-lo)/(hi-lo)*580,y1=34,y2=72;
+  let s=`<line x1="20" y1="${y1}" x2="620" y2="${y1}" stroke="#ccd"/><line x1="20" y1="${y2}" x2="620" y2="${y2}" stroke="#ccd"/>`;
+  const st=Math.max(1,Math.round((hi-lo)/12));for(let v=Math.ceil(lo);v<=hi;v+=st)s+=`<text x="${X(v)}" y="102" font-size="11" text-anchor="middle" fill="#889">${v}</text>`;
+  const dot=(x,y,c,col)=>`<circle cx="${x}" cy="${y}" r="7" fill="${c?col:'#fff'}" stroke="${col}" stroke-width="3"/>`;
+  if(a<b){
+    s+=`<line x1="${X(a)}" y1="${y1}" x2="${X(b)}" y2="${y1}" stroke="#3b82f6" stroke-width="6"/>`+dot(X(a),y1,0,'#3b82f6')+dot(X(b),y1,1,'#3b82f6');
+  }
+  s+=`<line x1="20" y1="${y2}" x2="${X(a)}" y2="${y2}" stroke="#f97316" stroke-width="6"/><line x1="${X(b)}" y1="${y2}" x2="620" y2="${y2}" stroke="#f97316" stroke-width="6"/>`+dot(X(a),y2,1,'#f97316')+dot(X(b),y2,0,'#f97316');
+  s+=`<text x="4" y="${y1+4}" font-size="12" fill="#3b82f6">Q</text><text x="2" y="${y2+4}" font-size="12" fill="#f97316">¬Q</text>`;
+  $('#iSvg').innerHTML=s;
+  $('#iTxt').innerHTML=`${F(`Q(x) = (x &gt; ${a}) ∧ (x ≤ ${b})`)}<br>${F(`¬Q(x) = ¬(x &gt; ${a}) ∨ ¬(x ≤ ${b}) ≡ <b>x ≤ ${a} ∨ x &gt; ${b}</b>`)}<br><small class="m">Точка ${a} не входит в Q (кружок пустой), поэтому входит в ¬Q (кружок закрашен). С точкой ${b} наоборот.</small>`;
+}
+$('#iA').oninput=iv;$('#iB').oninput=iv;iv();
+
+/* ========== QUESTION GENERATORS ========== */
+// each returns {t:topic, q:html, o:[html...], a:index} or {t, q, num:value, tol, ex}
+const SETS=[['ℕ','натурального'],['ℤ','целого']];
+function mc(t,q,correct,wrongs,ex){const o=shuffle([correct,...wrongs]);return {t,q,o,a:o.indexOf(correct),ex}}
+const G={
+ readAll(){const [S,w]=pick(SETS),id=pick(['x + 0 = x','x · 1 = x','2x = x + x','x − 0 = x']);
+  return mc(1,`Как правильно прочитать выражение ${F('∀x ∈ '+S+' : '+id)}?`,
+   `Для любого ${w} числа x выполняется ${F(id)}`,
+   [`Существует ${w} число x, такое что ${F(id)}`,`Для некоторых ${w.replace('ого','ых')} чисел x выполняется ${F(id)}`,`Не существует ${w} числа x, для которого ${F(id)}`],
+   `Символ ∀ читается «для любого». ${S} — множество ${w.replace('ого','ых')} чисел.`)},
+ forallTruth(){
+  const d=pick([2,3,5,6,7]),isEven=d==2&&Math.random()<.5;
+  let set,name,fn;
+  if(d==2){const odd=Math.random()<.5;name=odd?'x нечётное':'x чётное';fn=odd?(x=>x%2==1):(x=>x%2==0);const b=odd?1:2;set=[b,b+2,b+4,b+6]}
+  else{name='x делится на '+d;fn=x=>x%d==0;set=[d,2*d,3*d,4*d]}
+  const tr=Math.random()<.5;
+  if(!tr){const i=rnd(1,3);set[i]=set[i]+1}
+  const bad=set.find(x=>!fn(x));
+  const c=tr?`Истинно, потому что каждый элемент M удовлетворяет условию «${name}»`:`Ложно, потому что для x = ${bad} условие «${name}» не выполняется`;
+  const w=tr?[`Ложно, потому что не все элементы M рассмотрены`,`Истинно, потому что хотя бы один элемент M удовлетворяет условию`,`Ложно, потому что нужно проверить произведение элементов`]
+           :[`Истинно, потому что большинство элементов подходят`,`Истинно, потому что первый элемент подходит`,`Ложно, потому что во множестве должно быть больше элементов`];
+  return mc(1,`Дано множество ${F('M = '+fmtSet(set))}. Истинно ли высказывание ${F('∀x ∈ M : '+name)}?`,c,w,
+   tr?'Проверили все элементы, условие выполняется для каждого.':`Контрпример x = ${bad}. Для ∀ одного контрпримера достаточно.`)},
+ forallCount(){
+  const k=pick(['prod','share','cnt']);
+  if(k=='prod'){const d=3,set=[3,6,9,12];return {t:1,q:`Дано множество ${F('M = {3, 6, 9, 12}')}. Найдите произведение всех чётных элементов M.`,num:72,ex:'Чётные элементы 6 и 12, их произведение 6·12 = 72.'}}
+  if(k=='share'){const set=shuffle([2,4,pick([6,8,10,12]),pick([3,5,7,9])]).sort((a,b)=>a-b);return {t:1,q:`Дано ${F('M = '+fmtSet(set))}, ${F('P(x): x чётное')}. Найдите долю элементов, для которых P(x) истинно (десятичной дробью).`,num:0.75,ex:'Чётных 3 из 4, доля 3/4 = 0,75.'}}
+  const v=2*rnd(0,2),set=[2+v,3+v,6+v,7+v+2*rnd(0,2)];const n=set.filter(x=>x%2==0).length;
+  return {t:1,q:`Высказывание ${F('∀x ∈ '+fmtSet(set)+' : x нечётное')}. Укажите количество элементов, для которых предикат «x нечётное» ложен.`,num:n,ex:`Предикат ложен для чётных элементов, их ${n}.`}},
+ translateAll(){const it=pick([['Все книги на полке B в твёрдом переплёте','B','H','x в твёрдом переплёте'],['Все птицы в клетке K поют','K','P','x поёт'],['Все студенты группы G сдали экзамен','G','S','x сдал экзамен']]);
+  const [s,M,P,d]=it;return mc(1,`Какая запись соответствует утверждению «${s}»? (${M} — множество, ${P}(x): «${d}»)`,
+   F(`∀x ∈ ${M} : ${P}(x)`),[F(`∃x ∈ ${M} : ${P}(x)`),F(`∀x ∈ ${M} : ¬${P}(x)`),F(`∃x ∈ ${M} : ¬${P}(x)`)],'Слово «все» означает ∀. Отрицание не нужно.')},
+ readEx(){const n=pick([36,49,64,25]);return mc(2,`Как правильно читается формула ${F('∃x ∈ ℤ : x² = '+n)}?`,
+   `Существует такой x из ℤ, что ${F('x² = '+n)}`,[`Для всех x из ℤ выполняется ${F('x² = '+n)}`,`Не существует x из ℤ такого, что ${F('x² = '+n)}`,`Для некоторых x из ℤ не выполняется ${F('x² = '+n)}`],'∃ читается «существует такой … что».')},
+ exQuad(){
+  let r1=rnd(1,5),r2=rnd(r1+1,7);const S=r1+r2,P=r1*r2;
+  const inSet=Math.random()<.65;let set;
+  if(inSet){const st=rnd(1,Math.min(r1,2));set=[...Array(6)].map((_,i)=>st+i)}
+  else{set=[...Array(9)].map((_,i)=>i+1).filter(x=>x!=r1&&x!=r2).slice(0,5)}
+  const has=set.filter(x=>x==r1||x==r2);
+  const c=has.length?`Истинно, так как ${has.map(x=>'x = '+x).join(' и ')} ${has.length>1?'входят':'входит'} в множество и обращают уравнение в верное равенство`:'Ложно, так как ни один элемент множества не удовлетворяет уравнению';
+  const w=has.length?['Ложно, так как ни один элемент множества не удовлетворяет уравнению','Истинно, так как все элементы множества удовлетворяют уравнению','Ложно, так как квантор ∃ требует, чтобы предикат был истинен для всех элементов']
+    :[`Истинно, так как x = ${r1} обращает уравнение в верное равенство`,'Истинно, так как все элементы множества удовлетворяют уравнению','Истинно, так как квантор ∃ всегда даёт истину'];
+  return mc(2,`Определите истинность высказывания ${F(`∃x ∈ ${fmtSet(set)} : x² − ${S}x + ${P} = 0`)}.`,c,w,
+   `(x − ${r1})(x − ${r2}) = 0, корни ${r1} и ${r2}. ${has.length?'Корень есть в множестве, высказывание истинно.':'Корней в множестве нет, высказывание ложно.'}`)},
+ exTranslate(){const k=pick([2,3]),c=rnd(3,8),kw=k==2?'удвоенное':'утроенное';
+  return mc(2,`«Существует такое целое число x, что ${kw} число на ${c} больше самого числа». Какая запись верна?`,
+   F(`∃x ∈ ℤ : ${k}x = x + ${c}`),[F(`∃x ∈ ℤ : ${k}x &gt; x + ${c}`),F(`∀x ∈ ℤ : ${k}x = x + ${c}`),F(`∀x ∈ ℤ : x = ${k}x + ${c}`)],
+   `«Существует» означает ∃. Фраза «на ${c} больше» значит, что разница равна ${c}, поэтому пишем равенство ${k}x = x + ${c}.`)},
+ exWhich(){const it=pick([['планета Солнечной системы : на ней есть кольца','треугольник на чертеже : он равнобедренный','цветок в букете : он красный','слово в предложении : оно с заглавной буквы'],['здание города : у него 100 этажей','студент группы : он сдал экзамен','дорога области : она заасфальтирована','растение в саду : оно цветёт весной'],['нечётное число : оно делится на 3','чётное число : оно делится на 2','число, кратное 4 : оно делится на 2','простое число &gt; 2 : оно чётное']]);
+  return mc(2,'Какое из высказываний является высказыванием с квантором существования?','∃ '+it[0],it.slice(1).map(s=>'∀ '+s),'Ищем вариант, который начинается с символа ∃.')},
+ negForall(){const a=rnd(2,4),b=rnd(1,5)*pick([1,-1]),c=rnd(0,8),o=pick(['>','≥','<','≤']);
+  const L=`${a}x ${sgn(b)}`,n=NEG[o];
+  return mc(3,`Какая формула является корректной заменой высказывания ${F(`¬∀x (${L} ${esc(o)} ${c})`)}?`,
+   F(`∃x (${L} ${esc(n)} ${c})`),[F(`∀x (${L} ${esc(o)} ${c})`),F(`∃x (${L} ${esc(o)} ${c})`),F(`∀x (${L} ${esc(n)} ${c})`)],
+   `¬∀ превращается в ∃, а знак ${esc(o)} в ${esc(n)}.`)},
+ exToNegForall(){const a=rnd(5,9),c=rnd(50,100);
+  return mc(3,`Запишите формулу, эквивалентную ${F(`∃x (x + ${a} ≤ ${c})`)}, используя квантор общности и отрицание.`,
+   F(`¬∀x (x + ${a} &gt; ${c})`),[F(`¬∀x (x + ${a} ≤ ${c})`),F(`∀x (x + ${a} &gt; ${c})`),F(`¬∃x (x + ${a} &gt; ${c})`)],
+   `∃x ¬P ≡ ¬∀x P. Здесь ¬P: x+${a} ≤ ${c}, значит P: x+${a} &gt; ${c}.`)},
+ negAbstract(){const c=rnd(0,6),o=pick(['>','≥','<','≤']),fa=Math.random()<.5;
+  const q=fa?'¬∀x P(x)':'¬∃x P(x)',ans=fa?'∃x ¬P(x)':'∀x ¬P(x)';
+  const all=['∀x ¬P(x)','∃x ¬P(x)','¬∃x P(x)','∃x P(x)','∀x P(x)'].filter(s=>s!=ans&&s!=q.replace('¬',''));
+  return mc(fa?3:4,`Пусть ${F(`P(x): x ${esc(o)} ${c}`)}. Какое утверждение эквивалентно ${F(q)}?`,F(ans),shuffle(all).slice(0,3).map(F),
+   `${q} ≡ ${ans}: квантор меняется, предикат отрицается${fa?`, то есть существует x, для которого x ${esc(NEG[o])} ${c}`:''}.`)},
+ negNatural(){const it=pick([['Все ученики класса сдали экзамен','ученик класса','сдал экзамен','сдали экзамен'],['Все гости отеля оплатили проживание','гость отеля','оплатил проживание','оплатили проживание'],['Все пассажиры автобуса оплатили проезд','пассажир автобуса','оплатил проезд','оплатили проезд'],['Во всех аудиториях университета есть компьютеры','аудитория университета','в ней есть компьютер','есть компьютеры']]);
+  const [s,who,pr,prPl]=it,isAud=who.startsWith('аудитория');
+  const c=isAud?'Существует аудитория университета, в которой нет компьютеров':`Существует ${who}, который не ${pr}`;
+  const w=isAud?['Во всех аудиториях университета нет компьютеров','Существует аудитория, в которой есть компьютеры','Ни в одной аудитории нет компьютеров, кроме одной']
+   :[`Все ${s.split(' ')[1]} ${s.split(' ')[2]} не ${prPl}`,`Существует ${who}, который ${pr}`,`Ни один ${who} не ${pr}`];
+  return mc(3,`Запишите отрицание высказывания «${s}».`,c,w,'¬∀x P(x) ≡ ∃x ¬P(x): «существует … который не …». Вариант «все не …» неверен.')},
+ greatestInt(){const a=pick([2,3,4]),b=rnd(1,4),c=rnd(3,12);const x=Math.floor((c+b)/a);
+  return {t:3,q:`Запишите формулу, эквивалентную ${F(`¬∀x ∈ ℤ (${a}x − ${b} &gt; ${c})`)}, и найдите наибольшее целое x, при котором эта формула истинна.`,num:x,
+   ex:`¬∀x(${a}x − ${b} &gt; ${c}) ≡ ∃x(${a}x − ${b} ≤ ${c}). Решаем: ${a}x ≤ ${c+b}, x ≤ ${(c+b)%a?(c+b)+'/'+a:(c+b)/a}. Наибольшее целое ${x}.`}},
+ negExSq(){const k=rnd(3,9),o=pick(['<','≤']),n=NEG[o];
+  return mc(4,`Запишите высказывание, эквивалентное ${F(`¬∃x (x² ${esc(o)} ${k})`)}, используя квантор общности.`,
+   F(`∀x (x² ${esc(n)} ${k})`),[F(`∃x (x² ${esc(n)} ${k})`),F(`∀x (x² ${esc(o)} ${k})`),F(`¬∀x (x² ${esc(o)} ${k})`)],
+   `¬∃ превращается в ∀, знак ${esc(o)} в ${esc(n)}.`)},
+ negExWords(){const a=rnd(2,5),r=rnd(2,5),b=a*r;
+  return mc(4,`Высказывание: «Существует целое число x, такое что ${a}x − ${b} = 0». Выберите его отрицание с квантором общности.`,
+   `Для любого целого числа x верно, что ${F(`${a}x − ${b} ≠ 0`)}`,[`Для любого целого числа x верно, что ${F(`${a}x − ${b} = 0`)}`,`Существует целое число x, такое что ${F(`${a}x − ${b} ≠ 0`)}`,`Не для всякого целого числа x верно, что ${F(`${a}x − ${b} ≠ 0`)}`],
+   '¬∃x P ≡ ∀x ¬P: «для любого», а «=» меняется на «≠».')},
+ truthEquiv(){const k=pick([7,9,10,11,12]),set=[k-6,k-4,k-2,k].filter(x=>x>0);if(set.length<4)set.unshift(1);
+  if(Math.random()<.5)return {t:4,q:`Известно, что ${F(`∀y ∈ ${fmtSet(set)} (y² − ${k*k} ≠ 0)`)} ложно. Какова истинность ${F(`¬∃y ∈ ${fmtSet(set)} (y² − ${k*k} = 0)`)}? (1 — истинно, 0 — ложно)`,num:0,ex:'Это одно и то же высказывание (¬∃x P ≡ ∀x ¬P), поэтому оно тоже ложно: 0.'};
+  return mc(4,`Известно, что ${F(`∀x ∈ ${fmtSet(set)} (x² − ${k*k} ≠ 0)`)} ложно. Какова истинность ${F(`¬∃x ∈ ${fmtSet(set)} (x² − ${k*k} = 0)`)}?`,
+   'Ложно, так как ¬∃x P(x) эквивалентно ∀x ¬P(x)',['Истинно, так как отрицание меняет квантор','Истинно, так как квантор существования всегда даёт истину','Невозможно определить без проверки всех элементов'],'Эквивалентные формулы имеют одинаковую истинность.')},
+ countEq(){const k=pick([5,6,7,8]),set=shuffle([k,k-2,k+2,k-4,2*k]).slice(0,4);if(!set.includes(k))set[0]=k;set.sort((a,b)=>a-b);
+  return {t:4,q:`Сколько элементов множества ${F(fmtSet(set))} удовлетворяют условию ${F(`¬(x² − ${k*k} ≠ 0)`)}?`,num:set.filter(x=>x==k).length,ex:`¬(… ≠ 0) ⇔ x² = ${k*k} ⇔ x = ±${k}. В множестве только ${k}.`}},
+ multiAbs(){
+  const n=rnd(2,3),vars=pick([['x','y','z'],['u','v','w']]).slice(0,n);if(Math.random()<.2&&n==2)vars.reverse();
+  const qs=vars.map(()=>pick(['∀','∃'])),Pn=pick(['P','Q','R','S']),args='('+vars.slice().sort().join(', ')+')';
+  const fl=q=>q=='∀'?'∃':'∀',S=(arr,neg)=>arr.map((q,i)=>q+vars[i]).join(' ')+' '+(neg?'¬':'')+Pn+args;
+  const correct=S(qs.map(fl),true);
+  const cand=[S(qs.map(fl),false),S(qs,true),S([fl(qs[0]),...qs.slice(1)],true),S(qs.map((q,i)=>i==n-1?q:fl(q)),true),S(qs.map(()=>'∀'),true),S(qs.map(()=>'∃'),true)];
+  const w=[...new Set(cand)].filter(s=>s!=correct);
+  return mc(5,`Запишите отрицание формулы ${F(S(qs,false))}.`,F(correct),shuffle(w).slice(0,3).map(F),'Каждый квантор меняется на противоположный, порядок сохраняется, предикат отрицается.')},
+ multiConcrete(){const a=pick(['','2','3']),c=rnd(0,9),b=pick(['','3']);const e=`${a}x + ${b}y`;
+  return mc(5,`Дана формула ${F(`∀x ∃y (${e} = ${c})`)}, где x, y — целые. Запишите её отрицание.`,
+   F(`∃x ∀y (${e} ≠ ${c})`),[F(`∀x ∀y (${e} ≠ ${c})`),F(`∃x ∃y (${e} = ${c})`),F(`∀x ∃y (${e} ≠ ${c})`)],'∀ превращается в ∃, ∃ в ∀, знак «=» в «≠».')},
+ laws(){return pick(LAWQ)()},
+ countLaw(){
+  const k=pick(['and5','and12','impl']);
+  if(k=='and5')return {t:6,q:`${F('X = {1, 2, 3, 4, 5}')}, A(x): «x &gt; 2», B(x): «x чётно». Для скольких x из X истинно ${F('¬(A(x) ∧ B(x))')}?`,num:4,ex:'A ∧ B верно только для x = 4. Остальных 5 − 1 = 4.'};
+  if(k=='and12'){const m=pick([3,4]);const cnt=[...Array(12)].map((_,i)=>i+1).filter(x=>!(x%2==0&&x%m==0)).length;
+    return {t:6,q:`Числа от 1 до 12. P(x): «x чётно», Q(x): «x кратно ${m}». Сколько элементов в ${F('{x | ¬(P(x) ∧ Q(x))}')}?`,num:cnt,ex:`P ∧ Q: числа, кратные ${m==3?6:4}, их ${12-cnt}. Ответ 12 − ${12-cnt} = ${cnt}.`}}
+  return {t:6,q:`${F('U = {1, 2, 3, 4, 5}')}, P(x): «x чётно», Q(x): «x &gt; 2». Сколько элементов U удовлетворяют условию ${F('P(x) ∧ ¬Q(x)')}, то есть являются контрпримерами к ${F('∀x (P(x) → Q(x))')}?`,num:1,ex:'¬∀x(P→Q) ≡ ∃x(P ∧ ¬Q). Чётные и не больше 2: только x = 2. Ответ 1.'}},
+ negInterval(){const dec=Math.random()<.4,a=dec?(rnd(15,50)/10):rnd(1,6),b=dec?(rnd(60,99)/10):rnd(8,14),L=pick(['Q','R','T']);
+  return mc(7,`Дан предикат ${L}(x): «x &gt; ${a} и x ≤ ${b}». Запишите ${F('¬'+L+'(x)')}.`,
+   F(`x ≤ ${a} ∨ x &gt; ${b}`),[F(`x ≤ ${a} ∧ x &gt; ${b}`),F(`x &lt; ${a} ∨ x ≥ ${b}`),F(`x &gt; ${a} ∨ x ≤ ${b}`)],
+   `Де Морган: «и» меняется на «или», &gt; на ≤, ≤ на &gt;.`)},
+ simplify(){const L=shuffle(['P','Q','R','M','N','A','B','L'].slice()),[A,B,C]=L.map(s=>s+'(x)');
+  const k=pick(['abs1','abs2','abs3','dis1','dis2','tri1','tri2']);
+  if(k=='abs1')return mc(7,`Упростите выражение ${F(`${A} ∨ (${A} ∧ ${B})`)}.`,F(A),[F(B),F(`${A} ∧ ${B}`),F(`${A} ∨ ${B}`)],'Поглощение: A ∨ (A ∧ B) ≡ A.');
+  if(k=='abs2')return mc(7,`Упростите выражение ${F(`${A} ∧ (${A} ∨ ${B})`)}.`,F(A),[F(B),F(`${A} ∧ ${B}`),F(`${A} ∨ ${B}`)],'Поглощение: A ∧ (A ∨ B) ≡ A.');
+  if(k=='abs3')return mc(7,`Упростите выражение ${F(`${A} ∧ (${B} ∨ ${A})`)}.`,F(A),[F(B),F(`${A} ∧ ${B}`),F(`${A} ∨ ${B}`)],'Поглощение, порядок внутри скобки не важен: A ∧ (B ∨ A) ≡ A.');
+  if(k=='dis1')return mc(7,`Упростите выражение ${F(`(${A} ∨ ${B}) ∧ (${A} ∨ ${C})`)}.`,F(`${A} ∨ (${B} ∧ ${C})`),[F(`${A} ∧ (${B} ∨ ${C})`),F(`${A} ∨ ${B} ∨ ${C}`),F(A)],'Дистрибутивность: выносим общий A, ∧ уходит внутрь.');
+  if(k=='dis2')return mc(7,`Упростите выражение ${F(`(${A} ∧ ${B}) ∨ (${A} ∧ ${C})`)}.`,F(`${A} ∧ (${B} ∨ ${C})`),[F(`${A} ∨ (${B} ∧ ${C})`),F(`${A} ∧ ${B} ∧ ${C}`),F(A)],'Дистрибутивность: выносим общий A, ∨ уходит внутрь.');
+  if(k=='tri1')return mc(7,`Является ли выражение ${F(`${A} ∨ ¬${A}`)} тождественно истинным?`,'Да (закон исключённого третьего)',['Нет, зависит от x','Нет, оно тождественно ложно','Только для x &gt; 0'],'A ∨ ¬A всегда истинно.');
+  return mc(7,`Является ли выражение ${F(`${A} ∧ ¬${A}`)} тождественно ложным?`,'Да (закон противоречия)',['Нет, зависит от x','Нет, оно тождественно истинно','Только для x &gt; 0'],'A ∧ ¬A всегда ложно.')},
+};
+const LAWQ=[
+ ()=>mc(6,`Какое выражение эквивалентно ${F('¬(A(x) ∧ B(x))')} по закону де Моргана?`,F('¬A(x) ∨ ¬B(x)'),[F('¬A(x) ∧ ¬B(x)'),F('A(x) ∨ B(x)'),F('¬A(x) → B(x)')],'Отрицание конъюнкции — это дизъюнкция отрицаний.'),
+ ()=>mc(6,`Какое выражение эквивалентно ${F('¬(P(x) ∨ Q(x))')}?`,F('¬P(x) ∧ ¬Q(x)'),[F('¬P(x) ∨ ¬Q(x)'),F('P(x) ∧ Q(x)'),F('¬P(x) ∨ Q(x)')],'Отрицание дизъюнкции — это конъюнкция отрицаний.'),
+ ()=>mc(6,'Какое утверждение о законах логики верно?',`Дистрибутивность: ${F('P ∧ (Q ∨ R) ≡ (P ∧ Q) ∨ (P ∧ R)')}`,[`Двойное отрицание: ${F('¬¬P(x)')} ≡ истина`,`Дистрибутивность: ${F('P ∧ (Q ∨ R) ≡ (P ∧ Q) ∧ (P ∧ R)')}`,`Двойное отрицание: ${F('¬¬P(x) ≡ ¬P(x)')}`],'¬¬P ≡ P. В дистрибутивности знак ∨ сохраняется между скобками.'),
+ ()=>mc(6,`Какая равносильность верна для ${F('∃x (P(x) ∨ Q(x))')}?`,F('∃x P(x) ∨ ∃x Q(x)'),[F('∃x P(x) ∧ ∃x Q(x)'),F('∀x P(x) ∨ ∀x Q(x)'),F('∀x (P(x) ∨ Q(x))')],'∃ дистрибутивен относительно ∨.'),
+ ()=>mc(6,`Какая равносильность верна для ${F('∀x (R(x) ∧ S(x))')}?`,F('∀x R(x) ∧ ∀x S(x)'),[F('∀x R(x) ∨ ∀x S(x)'),F('∃x R(x) ∧ ∃x S(x)'),F('∀x (R(x) ∨ S(x))')],'∀ дистрибутивен относительно ∧.'),
+ ()=>mc(6,`Какой формуле равносильна ${F('¬∀x (P(x) → Q(x))')}?`,F('∃x (P(x) ∧ ¬Q(x))'),[F('∀x (P(x) ∧ ¬Q(x))'),F('∃x (¬P(x) ∨ Q(x))'),F('∀x (¬P(x) → ¬Q(x))')],'¬∀ ≡ ∃¬; ¬(P→Q) ≡ ¬(¬P∨Q) ≡ P ∧ ¬Q.'),
+ ()=>mc(6,`Какой формуле равносильна ${F('¬∃x (R(x) ∧ ¬S(x))')} после упрощения?`,F('∀x (¬R(x) ∨ S(x))'),[F('∃x (¬R(x) ∨ S(x))'),F('∃x (R(x) ∧ ¬S(x))'),F('∀x (R(x) ∧ S(x))')],'¬∃ ≡ ∀¬; ¬(R ∧ ¬S) ≡ ¬R ∨ ¬¬S ≡ ¬R ∨ S.'),
+ ()=>mc(6,`Какой формуле равносильна ${F('¬∃x (P(x) ∧ Q(x))')}?`,F('∀x (¬P(x) ∨ ¬Q(x))'),[F('∃x (¬P(x) ∧ ¬Q(x))'),F('∀x (¬P(x) ∧ ¬Q(x))'),F('∃x (¬P(x) → ¬Q(x))')],'¬∃ ≡ ∀¬, затем де Морган: ∧ меняется на ∨.'),
+ ()=>mc(6,'Какое утверждение о законах логики для предикатов верно?',F('¬∃x F(x) ≡ ∀x ¬F(x)'),[F('¬∀x G(x) ≡ ∃x G(x)'),F('∀x (F ∨ G) ≡ ∀x F ∨ ∀x G'),F('∃x (F ∧ G) ≡ ∃x F ∧ ∃x G')],'Верен только закон отрицания ∃. ∀ не раскрывается через ∨, ∃ не раскрывается через ∧.'),
+ ()=>mc(6,`Упростите ${F('¬¬¬P(x)')}.`,F('¬P(x)'),[F('P(x)'),F('¬¬P(x)'),'Тождественно ложно'],'Двойное отрицание снимается, остаётся одно ¬.'),
+];
+const BY_TOPIC={1:['readAll','forallTruth','forallCount','translateAll'],2:['readEx','exQuad','exTranslate','exWhich'],3:['negForall','exToNegForall','negAbstract','negNatural','greatestInt'],4:['negExSq','negExWords','truthEquiv','countEq','negAbstract'],5:['multiAbs','multiConcrete','multiAbs'],6:['laws','laws','countLaw'],7:['negInterval','simplify','simplify']};
+function gen(topic){for(let k=0;k<30;k++){const q=G[pick(BY_TOPIC[topic])]();if(q.t==topic||topic==4&&q.t==4||k>20)return q}return G[BY_TOPIC[topic][0]]()}
+
+/* ========== QUIZ ENGINE ========== */
+function Quiz(root,qs,opt={}){
+  let i=0,score=0,wrong=[];
+  function show(){
+    if(i>=qs.length)return end();
+    const q=qs[i],L='ABCDE';
+    root.innerHTML=`<div class="quiz"><div class="qhead"><span>Задача ${i+1} из ${qs.length} · тема ${q.t}: ${TOPICS[q.t]}</span><span class="score">✅ ${score}</span></div>
+     <div class="bar"><i style="width:${i/qs.length*100}%"></i></div>
+     <div class="qtext">${q.q}</div>
+     ${q.o?`<div class="opts">${q.o.map((o,j)=>`<button class="opt" data-j="${j}"><span class="L">${L[j]})</span>${o}</button>`).join('')}</div>`
+       :`<div class="row"><input type="text" class="ans" placeholder="Ответ" style="width:160px"><button class="pri chk">Проверить</button></div>`}
+     <div class="expl"></div><div class="row nxt" style="display:none"><button class="pri">${i+1<qs.length?'Следующая →':'Итог'}</button></div></div>`;
+    const ex=root.querySelector('.expl'),nx=root.querySelector('.nxt');
+    const done=(ok,extra)=>{if(ok)score++;else wrong.push(q);saveProg(q.t,ok);ex.innerHTML=(ok?'✅ <b>Верно!</b> ':'❌ <b>Неверно.</b> ')+(extra||'')+' '+(q.ex||'');ex.classList.add('show');nx.style.display='flex';root.querySelector('.score').textContent='✅ '+score;nx.querySelector('button').focus()};
+    if(q.o){root.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{const j=+b.dataset.j;root.querySelectorAll('.opt').forEach(x=>{x.disabled=true;if(+x.dataset.j==q.a)x.classList.add('right')});if(j!=q.a)b.classList.add('wrong');done(j==q.a)})}
+    else{const inp=root.querySelector('.ans'),go=()=>{const v=parseFloat(inp.value.replace(',','.'));if(isNaN(v))return;inp.disabled=true;root.querySelector('.chk').disabled=true;const ok=Math.abs(v-q.num)<1e-6;done(ok,ok?'':`Правильный ответ: <b>${String(q.num).replace('.',',')}</b>.`)};root.querySelector('.chk').onclick=go;inp.onkeydown=e=>{if(e.key=='Enter')go()};inp.focus()}
+    nx.querySelector('button').onclick=()=>{i++;show()};
+  }
+  function end(){
+    const pct=Math.round(score/qs.length*100),byT={};wrong.forEach(q=>byT[q.t]=(byT[q.t]||0)+1);
+    const weak=Object.entries(byT).sort((a,b)=>b[1]-a[1]);
+    root.innerHTML=`<div class="quiz"><div class="result">Результат: <b>${score} из ${qs.length}</b> (${pct}%) ${pct>=85?'🔥 Отлично, ты готов!':pct>=65?'👍 Хорошо, повтори слабые темы.':'📚 Перечитай теорию и попробуй ещё раз.'}</div>
+     ${weak.length?`<p>Где были ошибки: ${weak.map(([t,n])=>`<a href="#s${t}">тема ${t} (${TOPICS[t]}): ${n}</a>`).join(' · ')}</p>`:'<p>Ни одной ошибки! 🎉</p>'}
+     <div class="row"><button class="pri again">Ещё раз (новые задачи)</button></div></div>`;
+    root.querySelector('.again').onclick=opt.again;
+  }
+  show();
+}
+// per-topic practice
+$$('[data-practice]').forEach(el=>{
+  const t=+el.dataset.practice;
+  el.innerHTML=`<div class="row" style="margin-top:14px"><button class="pri">✏️ Потренироваться: 5 задач по теме ${t}</button></div><div class="qz"></div>`;
+  const start=()=>{const qs=[];const seen=new Set();for(let k=0;k<40&&qs.length<5;k++){const q=gen(t);if(q.t!=t)continue;const key=q.q;if(seen.has(key))continue;seen.add(key);qs.push(q)}Quiz(el.querySelector('.qz'),qs,{again:start})};
+  el.querySelector('button').onclick=start;
+});
+// exam
+function exam(n){
+  const qs=[],seen=new Set();const topics=[1,2,3,4,5,6,7];
+  let k=0;while(qs.length<n&&k<400){k++;const t=topics[qs.length%7];const q=gen(t);if(seen.has(q.q))continue;seen.add(q.q);qs.push(q)}
+  Quiz($('#examBox'),shuffle(qs),{again:()=>exam(n)});$('#examBox').scrollIntoView({behavior:'smooth',block:'start'});
+}
+$('#examGo').onclick=()=>exam(20);$('#examGo10').onclick=()=>exam(10);
+</script>
+</body>
+</html>
